@@ -1,41 +1,83 @@
 import socket
+import tkinter as tk
+from tkinter import messagebox
 
-# Crear socket del cliente
+# ---------------- SOCKET ----------------
+
 cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 HOST = '127.0.0.1'
 PUERTO = 5000
 
-# Conectar con servidor
 cliente.connect((HOST, PUERTO))
 
-while True:
+# ---------------- FUNCIONES ----------------
 
-    print("\n--- CALCULADORA ---")
-    print("1. Suma")
-    print("2. Resta")
-    print("3. Multiplicación")
-    print("4. División")
-    print("5. Salir")
+def enviar_operacion(operacion):
 
-    opcion = input("Elige una opción: ")
+    num1 = entrada1.get()
+    num2 = entrada2.get()
 
-    if opcion == "5":
-        break
+    if num1 == "" or num2 == "":
+        messagebox.showerror("Error", "Ingresa ambos números")
+        return
 
-    num1 = input("Ingresa el primer número: ")
-    num2 = input("Ingresa el segundo número: ")
+    mensaje = f"{operacion},{num1},{num2}"
 
-    # Crear mensaje
-    mensaje = f"{opcion},{num1},{num2}"
-
-    # Enviar datos
     cliente.send(mensaje.encode())
 
-    # Recibir resultado
     respuesta = cliente.recv(1024).decode()
 
-    print("Resultado:", respuesta)
+    resultado_label.config(text=f"Resultado: {respuesta}")
 
-# Cerrar cliente
+# ---------------- VENTANA ----------------
+
+ventana = tk.Tk()
+ventana.title("Calculadora Cliente")
+ventana.geometry("350x300")
+
+# Título
+titulo = tk.Label(ventana, text="Calculadora Cliente-Servidor", font=("Arial", 14))
+titulo.pack(pady=10)
+
+# Entrada 1
+tk.Label(ventana, text="Primer número").pack()
+
+entrada1 = tk.Entry(ventana)
+entrada1.pack()
+
+# Entrada 2
+tk.Label(ventana, text="Segundo número").pack()
+
+entrada2 = tk.Entry(ventana)
+entrada2.pack(pady=10)
+
+# Botones
+frame_botones = tk.Frame(ventana)
+frame_botones.pack()
+
+btn_suma = tk.Button(frame_botones, text="+", width=8,
+                     command=lambda: enviar_operacion("1"))
+btn_suma.grid(row=0, column=0, padx=5, pady=5)
+
+btn_resta = tk.Button(frame_botones, text="-", width=8,
+                      command=lambda: enviar_operacion("2"))
+btn_resta.grid(row=0, column=1, padx=5, pady=5)
+
+btn_multi = tk.Button(frame_botones, text="*", width=8,
+                      command=lambda: enviar_operacion("3"))
+btn_multi.grid(row=1, column=0, padx=5, pady=5)
+
+btn_div = tk.Button(frame_botones, text="/", width=8,
+                    command=lambda: enviar_operacion("4"))
+btn_div.grid(row=1, column=1, padx=5, pady=5)
+
+# Resultado
+resultado_label = tk.Label(ventana, text="Resultado: ", font=("Arial", 12))
+resultado_label.pack(pady=20)
+
+# Ejecutar ventana
+ventana.mainloop()
+
+# Cerrar conexión
 cliente.close()

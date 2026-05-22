@@ -53,7 +53,7 @@ while True:
         if num2 != 0:
             resultado = num1 / num2
         else:
-            resultado = "Error: división entre 0"
+            resultado = "Error: división entre 0" 
 
     else:
         resultado = "Operación inválida"
